@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>BANG!</title>
+	</head>
+	<div id="menuDiv">
+		Name: 
+		<input id="name" type="text"></input></br>
+		<button id="host">Host New Game</button>
+		Game ID: 
+		<input id="gameId" type="text"></input>
+		<button id="join">Join Existing Game</button>
+	</div>
+	<div id="lobbyDiv" style="display:none">
+		<h1 id="title"></h1>
+		<h2>Players:</h2>
+		<ul id="players"></ul>
+	</div>
+	<div id="gameDiv" style="display:none">
+		<canvas id="board" width="1170" height="825" style="position:absolute;left:8px;top:8px;border:1px solid #000000;"></canvas>
+		<canvas id="card" width="250" height="389" style="position:absolute;left:1178px;top:8px;border:1px solid #000000"></canvas>
+		<canvas id="suit" width="63" height="46" style="position:absolute;left:1178px;top:351px;border:1px solid #000000"></canvas>
+		
+	</div>
+	<script src="/client/js/socket.js"></script>
+	<script src="/client/js/lobby.js"></script>
+</html>

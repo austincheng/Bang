@@ -1,0 +1,22 @@
+barrel: 12S 13S
+dynamite: 2H
+scope: 1S
+mustang: 8H 9H
+jail: 11S 4H 10S
+remington: 13C
+rev.-carabine: 1C
+schofield: 11C 12C 13S
+volcanic: 10S 10C
+winchester: 8S
+bang: 1S 1-13D 2-9C 12H 13H 1H
+beer: 6-11H
+cat-balou: 13H 9D 10D 11D
+stagecoach: 9S 9S
+duel: 12D 11S 8C
+general-store: 9C 12S
+gatling: 10H
+indians: 13D 1D
+missed: 1C 10-13C 2-8S
+panic: 11H 12H 1H 8D
+saloon: 5H
+wells-fargo: 3H
