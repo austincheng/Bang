@@ -78,6 +78,11 @@ socket.on('startResponse', function(data) {
 	var gameDiv = document.getElementById('gameDiv');
 	lobbyDiv.style.display = 'none';
 	gameDiv.style.display = 'inline-block';
+	var board = document.getElementById('board').getContext('2d');
+	board.beginPath();
+	board.moveTo(0, 304);
+	board.lineTo(1170, 304);
+	board.stroke();
 });
 
 socket.on('tooFewPlayers', function() {
@@ -103,13 +108,31 @@ socket.on('gameUpdate', function(data) {
 
 	var roleImage = new Image();
 	roleImage.src = '/client/images/roles/original/' + player.role + '.png';
-	roles.drawImage(roleImage, 0, 0, 140, 218);
+	roles.drawImage(roleImage, 0, 0, width(218), 218);
 
 	var characterImage = new Image();
 	characterImage.src = '/client/images/characters/original/' + player.character + '.png';
-	roles.drawImage(characterImage, 0, 218, 140, 218);
+	roles.drawImage(characterImage, 0, 218, width(218), 218);
+
+	for (var i = 0; i < player.hand.length; i++) {
+		var actualCard = player.hand[i];
+		var cardImage = new Image();
+		cardImage.src = '/client/images/cards/original/' + actualCard.name + '.png';
+		if (i < 12) {
+			board.drawImage(cardImage, 97.5 * i, 0, 97.5, height(97.5));
+		} else {
+			board.drawImage(cardImage, 97.5 * (i - 12), height(97.5), 97.5, height(97.5));
+		}
+	}
 });
 
+var height = function(width) {
+	return (389 / 250) * width;
+}
+
+var width = function(height) {
+	return (250 / 389) * height;
+}
 var fullSuit = function(l) {
 	if (l === 'C') {
 		return 'clubs';
