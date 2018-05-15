@@ -95,9 +95,11 @@ GAME SCREEN
 socket.on('gameUpdate', function(data) {
 	var game = data.game;
 	var player = data.player;
+	var allCards = data.cards;
 	var board = document.getElementById('board').getContext('2d');
 	var card = document.getElementById('card').getContext('2d');
-	var suit = document.getElementById('suit').getContext('2d');
+	var suitC = document.getElementById('suit');
+	var suit = suitC.getContext('2d');
 
 	var roleImage = new Image(20, 20);
 	roleImage.src = '/client/images/roles/original/' + player.role + '.png';
@@ -107,11 +109,51 @@ socket.on('gameUpdate', function(data) {
 	characterImage.src = '/client/images/characters/original/' + player.character + '.png';
 	board.drawImage(characterImage, 400, 0);
 
-	var image = new Image();
-	image.src = '/client/images/cards/original/bang.png';
-	card.drawImage(image, 0, 0);
-
-	suit.fillStyle = "blue";
-	suit.fill();
-	suit.fillText("10", 35, 20);
+	drawCard(allCards[15], card, suitC, suit);
 });
+
+var fullSuit = function(l) {
+	if (l === 'C') {
+		return 'clubs';
+	} else if (l === 'D') {
+		return 'diamonds';
+	} else if (l === 'H') {
+		return 'hearts';
+	} else if (l === 'S') {
+		return 'spades';
+	} 
+}
+
+var special = function(number) {
+	if (number == 1) {
+		return 'A';
+	} else if (number == 11) {
+		return 'J';
+	} else if (number == 12) {
+		return 'Q';
+	} else if (number == 13) {
+		return 'K';
+	} else {
+		return number;
+	}
+}
+
+var drawCard = function(card, cardCanvas, suitC, suitCanvas) {
+	var image = new Image();
+	image.src = '/client/images/cards/original/' + card.name + '.png';
+	cardCanvas.drawImage(image, 0, 0);
+
+	suitCanvas.fillStyle = "white";
+	suitCanvas.fillRect(0, 0, suitC.width, suitC.height);
+	if (card.suit === 'D' || card.suit == 'H') {
+		suitCanvas.fillStyle = "red";
+	} else {
+		suitCanvas.fillStyle = "black";
+	}
+	suitCanvas.font = '30px Arial';
+	suitCanvas.fillText(special(card.number), 0, 35);
+
+	var suitImage = new Image();
+	suitImage.src = '/client/images/suits/' + fullSuit(card.suit) + '.png';
+	suitCanvas.drawImage(suitImage, 32, 10);
+}

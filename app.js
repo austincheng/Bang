@@ -34,20 +34,6 @@ function Game(gameId, cards) {
 	this.lobby = true;
 }
 
-var special = function(number) {
-	if (number == 1) {
-		return 'A';
-	} else if (number == 11) {
-		return 'J';
-	} else if (number == 12) {
-		return 'Q';
-	} else if (number == 13) {
-		return 'K';
-	} else {
-		return number;
-	}
-}
-
 var cards = [];
 fs.readFile(__dirname + '/cardData/original.txt', 'utf8', function(err, data) {
 	if (err) {
@@ -76,6 +62,11 @@ fs.readFile(__dirname + '/cardData/original.txt', 'utf8', function(err, data) {
 		}
 	}
 });
+
+var characters = fs.readdirSync(__dirname + '/client/images/characters/original/');
+for (var i in characters) {
+	characters[i]= characters[i].slice(0, -4);
+}
 
 var getRandomInt = function(max) {
 	return Math.floor(Math.random() * max);
@@ -144,7 +135,6 @@ io.sockets.on('connection', function(socket) {
 				roles.push('vice');
 			}
 
-			var characters = ['bart-cassidy', 'black-jack', 'calamity-janet', 'el-gringo'];
 			for (var i in game.players) {
 				var player = game.players[i];
 				var roleIndex = getRandomInt(roles.length);
@@ -181,7 +171,7 @@ setInterval(function() {
 			if (game.lobby) {
 				socket.emit('lobbyUpdate', {'game': game, 'host': player.host});
 			} else {
-				socket.emit('gameUpdate', {'game': game, 'player': player});
+				socket.emit('gameUpdate', {'game': game, 'player': player, 'cards': cards});
 			}
 		}
 	}
