@@ -95,21 +95,19 @@ GAME SCREEN
 socket.on('gameUpdate', function(data) {
 	var game = data.game;
 	var player = data.player;
-	var allCards = data.cards;
 	var board = document.getElementById('board').getContext('2d');
 	var card = document.getElementById('card').getContext('2d');
 	var suitC = document.getElementById('suit');
 	var suit = suitC.getContext('2d');
+	var roles = document.getElementById('roles').getContext('2d');
 
-	var roleImage = new Image(20, 20);
+	var roleImage = new Image();
 	roleImage.src = '/client/images/roles/original/' + player.role + '.png';
-	board.drawImage(roleImage, 0, 0);
+	roles.drawImage(roleImage, 0, 0, 140, 218);
 
-	var characterImage = new Image(50, 50);
+	var characterImage = new Image();
 	characterImage.src = '/client/images/characters/original/' + player.character + '.png';
-	board.drawImage(characterImage, 400, 0);
-
-	drawCard(allCards[15], card, suitC, suit);
+	roles.drawImage(characterImage, 0, 218, 140, 218);
 });
 
 var fullSuit = function(l) {

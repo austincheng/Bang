@@ -30,32 +30,31 @@ function Game(gameId, cards) {
 	this.gameId = gameId;
 	this.players = {};
 	this.deck = [];
-	this.allCards = cards;
 	this.lobby = true;
 }
 
 var cards = [];
-fs.readFile(__dirname + '/cardData/original.txt', 'utf8', function(err, data) {
+fs.readFile(__dirname + '/cardData/suits/original.txt', 'utf8', function(err, data) {
 	if (err) {
 		return console.log(err);
 	}
 	data = data.split('\r\n');
 	for (var i = 0; i < data.length; i++) {
-		line = data[i];
-		items = line.split(' ');
-		name = items[0].slice(0, -1);
+		var line = data[i];
+		var items = line.split(' ');
+		var name = items[0].slice(0, -1);
 		for (var j = 1; j < items.length; j++) {
-			number = items[j].slice(0, -1);
+			var number = items[j].slice(0, -1);
 			if (number.includes('-')) {
-				bounds = number.split('-');
-				start = parseInt(bounds[0]);
-				end = parseInt(bounds[1]);
+				var bounds = number.split('-');
+				var start = parseInt(bounds[0]);
+				var end = parseInt(bounds[1]);
 				for (var k = start; k <= end; k++) {
-					suit = items[j].charAt(items[j].length - 1);
+					var suit = items[j].charAt(items[j].length - 1);
 					cards.push(new Card(name, k, suit));
 				}
 			} else {
-				suit = items[j].charAt(items[j].length - 1);
+				var suit = items[j].charAt(items[j].length - 1);
 				number = parseInt(number);
 				cards.push(new Card(name, number, suit));
 			}
@@ -68,9 +67,41 @@ for (var i in characters) {
 	characters[i]= characters[i].slice(0, -4);
 }
 
+var lives = {};
+fs.readFile(__dirname + '/cardData/lives/original.txt', 'utf8', function(err, data) {
+	if (err) {
+		return console.log(err);
+	}
+	data = data.split('\r\n');
+	for (var i = 0; i < data.length; i++) {
+		var line = data[i];
+		var items = line.split(' ');
+		var name = items[0];
+		var num = items[1];
+		lives[name] = num;
+	}
+
+	for (var c of characters) {
+		if (!(c in lives)) {
+			lives[c] = 4;
+		}
+	}
+});
+
 var getRandomInt = function(max) {
 	return Math.floor(Math.random() * max);
 } 
+
+var shuffle = function(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
 
 var SOCKET_LIST = {};
 var GAME_LIST = {};
@@ -118,6 +149,8 @@ io.sockets.on('connection', function(socket) {
 	socket.on('start', function(data) {
 		var game = GAME_LIST[data];
 		game.lobby = false;
+		game.allCards = cards;
+		game.deck = shuffle(game.allCards);
 		var playerLength = Object.keys(game.players).length;
 		if (playerLength < 4) {
 			socket.emit('tooFewPlayers');
@@ -125,6 +158,7 @@ io.sockets.on('connection', function(socket) {
 			socket.emit('tooManyPlayers');
 		} else {
 			var roles = ['sheriff', 'renegade', 'outlaw', 'outlaw'];
+			var allCharacters = characters.slice();
 			if (playerLength >= 5) {
 				roles.push('vice');
 			}
@@ -138,9 +172,16 @@ io.sockets.on('connection', function(socket) {
 			for (var i in game.players) {
 				var player = game.players[i];
 				var roleIndex = getRandomInt(roles.length);
-				var characterIndex = getRandomInt(characters.length);
+				var characterIndex = getRandomInt(allCharacters.length);
 				player.role = roles.splice(roleIndex, 1)[0];
-				player.character = characters.splice(characterIndex, 1)[0];
+				player.character = allCharacters.splice(characterIndex, 1)[0];
+				player.lives = lives[player.character];
+				if (player.role == 'sheriff') {
+					player.lives++;
+				}
+				for (var k = 0; k < player.lives; k++) {
+					player.hand.push(game.deck.pop());
+				}
 				for (var j in SOCKET_LIST) {
 					var soc = SOCKET_LIST[j];
 					if (player.id === soc.id) {
@@ -171,7 +212,7 @@ setInterval(function() {
 			if (game.lobby) {
 				socket.emit('lobbyUpdate', {'game': game, 'host': player.host});
 			} else {
-				socket.emit('gameUpdate', {'game': game, 'player': player, 'cards': cards});
+				socket.emit('gameUpdate', {'game': game, 'player': player});
 			}
 		}
 	}
