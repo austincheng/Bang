@@ -105,6 +105,7 @@ var shuffle = function(a) {
 
 var SOCKET_LIST = {};
 var GAME_LIST = {};
+var SOCKET_TO_GAME = {};
 
 var io = require('socket.io')(serv, {});
 io.sockets.on('connection', function(socket) {
@@ -120,6 +121,7 @@ io.sockets.on('connection', function(socket) {
 
 		var game = new Game(gameId);
 		GAME_LIST[gameId] = game;
+		SOCKET_TO_GAME[socket.id] = game;
 		game.allCards = cards;
 
 		var hostPlayer = new Player(name, socket.id, true);
@@ -137,6 +139,7 @@ io.sockets.on('connection', function(socket) {
 			socket.emit('badMenuResponse');
 		} else {
 			var game = GAME_LIST[gameId];
+			SOCKET_TO_GAME[socket.id] = game;
 			var newPlayer = new Player(name, socket.id, false);
 			game.players[socket.id] = newPlayer;
 
@@ -192,6 +195,43 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 
+	socket.on('clickCard', function(data) {
+		var x = data[0];
+		var y = data[1];
+		var game = SOCKET_TO_GAME[socket.id];
+		if (game !== undefined) {
+			var player = game.players[socket.id];
+		
+			if (0 <= y && y < height(97.5) * 2) {
+				var index = Math.floor(x / 97.5);
+				if (y >= height(97.5)) {
+					index += 12;
+				}
+				if (index < player.hand.length) {
+					socket.emit('clickCardResponse', player.hand[index]);
+				}
+			}
+		}
+	});
+
+	socket.on('clickRole', function(data) {
+		var x = data[0];
+		var y = data[1];
+		var game = SOCKET_TO_GAME[socket.id];
+		if (game !== undefined) {
+			var player = game.players[socket.id];
+		
+			if (0 <= x && x < width(218)) {
+				var index = Math.floor(y / 218);
+				if (index === 0) {
+					socket.emit('clickRoleResponse', '/client/images/roles/original/' + player.role + '.png');
+				} else {
+					socket.emit('clickRoleResponse', '/client/images/characters/original/' + player.character + '.png');
+				}
+			}
+		}
+	});
+
 	socket.on('disconnect', function() {
 		var game = GAME_LIST[SOCKET_LIST[socket.id].gameId];
 		if (game !== undefined) {
@@ -202,6 +242,14 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 });
+
+var height = function(width) {
+	return (389 / 250) * width;
+}
+
+var width = function(height) {
+	return (250 / 389) * height;
+}
 
 setInterval(function() {
 	for (var i in SOCKET_LIST) {

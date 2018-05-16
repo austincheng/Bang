@@ -126,13 +126,47 @@ socket.on('gameUpdate', function(data) {
 	}
 });
 
+document.getElementById('board').addEventListener('click', function(event) {
+	var rect = event.target.getBoundingClientRect();
+	var x = event.clientX - rect.left;
+	var y = event.clientY - rect.top;
+
+	socket.emit('clickCard', [x, y]);
+});
+
+document.getElementById('roles').addEventListener('click', function(event) {
+	var rect = event.target.getBoundingClientRect();
+	var x = event.clientX - rect.left;
+	var y = event.clientY - rect.top;
+
+	socket.emit('clickRole', [x, y]);
+});
+
+socket.on('clickCardResponse', function(data) {
+	var card = document.getElementById('card').getContext('2d');
+	var suitC = document.getElementById('suit');
+	var suit = suitC.getContext('2d');
+	drawCard(data, card, suitC, suit);
+});
+
+socket.on('clickRoleResponse', function(data) {
+	var suitC = document.getElementById('suit');
+	var suit = suitC.getContext('2d');
+	var card = document.getElementById('card').getContext('2d');
+	var image = new Image();
+	suit.clearRect(0, 0, suitC.width, suitC.height);
+	image.src = data;
+	card.drawImage(image, 0, 0);
+});
+
 var height = function(width) {
 	return (389 / 250) * width;
-}
+};
 
 var width = function(height) {
 	return (250 / 389) * height;
-}
+};
+
 var fullSuit = function(l) {
 	if (l === 'C') {
 		return 'clubs';
@@ -172,9 +206,9 @@ var drawCard = function(card, cardCanvas, suitC, suitCanvas) {
 		suitCanvas.fillStyle = "black";
 	}
 	suitCanvas.font = '30px Arial';
-	suitCanvas.fillText(special(card.number), 0, 35);
+	suitCanvas.fillText(special(card.number), 0, 32);
 
 	var suitImage = new Image();
 	suitImage.src = '/client/images/suits/' + fullSuit(card.suit) + '.png';
-	suitCanvas.drawImage(suitImage, 32, 10);
+	suitCanvas.drawImage(suitImage, 32, 7);
 }
