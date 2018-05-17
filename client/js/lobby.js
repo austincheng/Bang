@@ -97,6 +97,8 @@ socket.on('tooManyPlayers', function() {
 GAME SCREEN
 **/
 
+var covered = false;
+
 socket.on('gameUpdate', function(data) {
 	var game = data.game;
 	var player = data.player;
@@ -107,7 +109,11 @@ socket.on('gameUpdate', function(data) {
 	var roles = document.getElementById('roles').getContext('2d');
 
 	var roleImage = new Image();
-	roleImage.src = '/client/images/roles/original/' + player.role + '.png';
+	if (covered) {
+		roleImage.src = '/client/images/characters/original/' + player.character + '.png';
+	} else {
+		roleImage.src = '/client/images/roles/original/' + player.role + '.png';
+	}
 	roles.drawImage(roleImage, 0, 0, width(218), 218);
 
 	var characterImage = new Image();
@@ -139,8 +145,18 @@ document.getElementById('roles').addEventListener('click', function(event) {
 	var x = event.clientX - rect.left;
 	var y = event.clientY - rect.top;
 
-	socket.emit('clickRole', [x, y]);
+	socket.emit('clickRole', [x, y, covered]);
 });
+
+document.getElementById('roles').addEventListener('dblclick', function(event) {
+	var rect = event.target.getBoundingClientRect();
+	var x = event.clientX - rect.left;
+	var y = event.clientY - rect.top;
+
+	if (0 <= x && x < width(218) && 0 <= y && y < 218) {
+		covered = !covered;
+	}
+})
 
 socket.on('clickCardResponse', function(data) {
 	var card = document.getElementById('card').getContext('2d');

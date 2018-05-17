@@ -217,13 +217,14 @@ io.sockets.on('connection', function(socket) {
 	socket.on('clickRole', function(data) {
 		var x = data[0];
 		var y = data[1];
+		var covered = data[2];
 		var game = SOCKET_TO_GAME[socket.id];
 		if (game !== undefined) {
 			var player = game.players[socket.id];
 		
 			if (0 <= x && x < width(218)) {
 				var index = Math.floor(y / 218);
-				if (index === 0) {
+				if (index === 0 && !covered) {
 					socket.emit('clickRoleResponse', '/client/images/roles/original/' + player.role + '.png');
 				} else {
 					socket.emit('clickRoleResponse', '/client/images/characters/original/' + player.character + '.png');

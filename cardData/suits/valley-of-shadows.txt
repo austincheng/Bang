@@ -1,0 +1,15 @@
+tornado: 1C
+aim: 6C
+bounty: 9C
+backfire: 12C
+tomahawk: 1D
+lemat: 4D
+last-call: 8D
+bandidos: 12D
+escape: 3H
+saved: 5H
+rattlesnake: 7H
+poker: 11H
+fanning: 2S
+ghost: 9S 10S
+shotgun: 13S
