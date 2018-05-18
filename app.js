@@ -29,6 +29,7 @@ function Player(name, id, host) {
 function Game(gameId, cards) {
 	this.gameId = gameId;
 	this.players = {};
+	this.playerOrder = [];
 	this.deck = [];
 	this.lobby = true;
 }
@@ -126,6 +127,7 @@ io.sockets.on('connection', function(socket) {
 
 		var hostPlayer = new Player(name, socket.id, true);
 		game.players[socket.id] = hostPlayer;
+		game.playerOrder.push(socket.id);
 
 		socket.gameId = gameId;
 		socket.name = name;
@@ -142,6 +144,7 @@ io.sockets.on('connection', function(socket) {
 			SOCKET_TO_GAME[socket.id] = game;
 			var newPlayer = new Player(name, socket.id, false);
 			game.players[socket.id] = newPlayer;
+			game.playerOrder.push(socket.id);
 
 			socket.gameId = gameId;
 			socket.name = name;

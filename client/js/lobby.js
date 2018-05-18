@@ -80,8 +80,18 @@ socket.on('startResponse', function(data) {
 	gameDiv.style.display = 'inline-block';
 	var board = document.getElementById('board').getContext('2d');
 	board.beginPath();
-	board.moveTo(0, 304);
-	board.lineTo(1170, 304);
+	board.moveTo(0, 305);
+	board.lineTo(1170, 305);
+	board.stroke();
+
+	board.beginPath();
+	board.moveTo(0, 305 + 530/3);
+	board.lineTo(1170, 305 + 530/3);
+	board.stroke();
+
+	board.beginPath();
+	board.moveTo(0, 305 + (530/3)*2);
+	board.lineTo(1170, 305 + (530/3)*2);
 	board.stroke();
 });
 
@@ -107,10 +117,11 @@ socket.on('gameUpdate', function(data) {
 	var suitC = document.getElementById('suit');
 	var suit = suitC.getContext('2d');
 	var roles = document.getElementById('roles').getContext('2d');
+	var numPlayers = Object.keys(game.players).length
 
 	var roleImage = new Image();
 	if (covered) {
-		roleImage.src = '/client/images/characters/original/' + player.character + '.png';
+		roleImage.src = '/client/images/roles/back.png';
 	} else {
 		roleImage.src = '/client/images/roles/original/' + player.role + '.png';
 	}
@@ -130,7 +141,46 @@ socket.on('gameUpdate', function(data) {
 			board.drawImage(cardImage, 97.5 * (i - 12), height(97.5), 97.5, height(97.5));
 		}
 	}
+	console.log(game.players);
+	console.log(game.playerOrder);
+
+	if (numPlayers == 4) {
+		drawPlayer(player, 1170 / 2, 305 + (520 / 3) * 2 + (530 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+		var index = game.playerOrder.indexOf(player.id);
+		console.log(index);
+		
+		var player1 = game.players[game.playerOrder[(index + 1) % 4]];
+		drawPlayer(player1, 1170 / 4, 305 + 520 / 3 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+		console.log(player1);
+
+		var player2 = game.players[game.playerOrder[(index + 2) % 4]];
+		drawPlayer(player2, 1170 / 2, 305 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+		console.log(player2);
+
+		var player3 = game.players[game.playerOrder[(index + 3) % 4]];
+		drawPlayer(player3, (1170 / 4) * 3, 305 + 520 / 3 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+		console.log(player3);
+	}
 });
+
+var drawPlayer = function(player, x, y, width, height) {
+	var board = document.getElementById('board').getContext('2d');
+	var boardRoleImage = new Image();
+	if (player.role === 'sheriff') {
+		boardRoleImage.src = '/client/images/roles/original/sheriff.png';	
+	} else {
+		boardRoleImage.src = '/client/images/roles/back.png';
+	}
+	board.drawImage(boardRoleImage, x - width, y, width, height);	
+
+	var boardCharacterImage = new Image();
+	boardCharacterImage.src = '/client/images/characters/original/' + player.character + '.png';
+	board.drawImage(boardCharacterImage, x, y, width, height);
+}
+
+var floorMod = function(num, div) {
+	return ((num % div) + div) % div;
+}
 
 document.getElementById('board').addEventListener('click', function(event) {
 	var rect = event.target.getBoundingClientRect();
