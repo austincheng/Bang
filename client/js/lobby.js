@@ -84,15 +84,21 @@ socket.on('startResponse', function(data) {
 	board.lineTo(1170, 305);
 	board.stroke();
 
+	/* TO SEE LINE PLACEMENT
 	board.beginPath();
-	board.moveTo(0, 305 + 530/3);
-	board.lineTo(1170, 305 + 530/3);
+	board.moveTo(0, 305 + 530/4);
+	board.lineTo(1170, 305 + 530/4);
 	board.stroke();
 
 	board.beginPath();
-	board.moveTo(0, 305 + (530/3)*2);
-	board.lineTo(1170, 305 + (530/3)*2);
+	board.moveTo(0, 305 + (530/4)*2);
+	board.lineTo(1170, 305 + (530/4)*2);
 	board.stroke();
+
+	board.beginPath();
+	board.moveTo(0, 305 + (530/4)*3);
+	board.lineTo(1170, 305 + (530/4)*3);
+	board.stroke(); */
 });
 
 socket.on('tooFewPlayers', function() {
@@ -125,43 +131,154 @@ socket.on('gameUpdate', function(data) {
 	} else {
 		roleImage.src = '/client/images/roles/original/' + player.role + '.png';
 	}
-	roles.drawImage(roleImage, 0, 0, width(218), 218);
+	roleImage.onload = function() {
+		roles.drawImage(roleImage, 0, 0, width(218), 218);
+	}
 
 	var characterImage = new Image();
 	characterImage.src = '/client/images/characters/original/' + player.character + '.png';
-	roles.drawImage(characterImage, 0, 218, width(218), 218);
+	characterImage.onload = function() {
+		roles.drawImage(characterImage, 0, 218, width(218), 218);
+	}
 
-	for (var i = 0; i < player.hand.length; i++) {
+	/*for (var i = 0; i < player.hand.length; i++) {
 		var actualCard = player.hand[i];
 		var cardImage = new Image();
 		cardImage.src = '/client/images/cards/original/' + actualCard.name + '.png';
+		if (i < 12) {
+			cardImage.onload = function() {
+				board.drawImage(cardImage, 97.5 * i, 0, 97.5, height(97.5));
+			}
+		} else {
+			cardImage.onload = function() {
+				board.drawImage(cardImage, 97.5 * (i - 12), height(97.5), 97.5, height(97.5));
+			}
+		}
+	}*/
+	var urls = getURLS(player.hand);
+	var images = loadImages(urls);
+	for (var i = 0; i < images.length; i++) {
+		var cardImage = images[i];
 		if (i < 12) {
 			board.drawImage(cardImage, 97.5 * i, 0, 97.5, height(97.5));
 		} else {
 			board.drawImage(cardImage, 97.5 * (i - 12), height(97.5), 97.5, height(97.5));
 		}
 	}
-	console.log(game.players);
-	console.log(game.playerOrder);
 
-	if (numPlayers == 4) {
+	if (numPlayers === 4) {
 		drawPlayer(player, 1170 / 2, 305 + (520 / 3) * 2 + (530 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
 		var index = game.playerOrder.indexOf(player.id);
-		console.log(index);
 		
 		var player1 = game.players[game.playerOrder[(index + 1) % 4]];
 		drawPlayer(player1, 1170 / 4, 305 + 520 / 3 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
-		console.log(player1);
 
 		var player2 = game.players[game.playerOrder[(index + 2) % 4]];
 		drawPlayer(player2, 1170 / 2, 305 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
-		console.log(player2);
 
 		var player3 = game.players[game.playerOrder[(index + 3) % 4]];
 		drawPlayer(player3, (1170 / 4) * 3, 305 + 520 / 3 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
-		console.log(player3);
+	} else if (numPlayers === 5) {
+		drawPlayer(player, 1170 / 2, 305 + (520 / 3) * 2 + (530 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+		var index = game.playerOrder.indexOf(player.id);
+		
+		var player1 = game.players[game.playerOrder[(index + 1) % 5]];
+		drawPlayer(player1, 1170 / 4, 305 + 520 / 3 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+
+		var player2 = game.players[game.playerOrder[(index + 2) % 5]];
+		drawPlayer(player2, (1170 / 8) * 3, 305 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+
+		var player3 = game.players[game.playerOrder[(index + 3) % 5]];
+		drawPlayer(player3, (1170 / 8) * 5, 305 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+
+		var player4 = game.players[game.playerOrder[(index + 4) % 5]];
+		drawPlayer(player4, (1170 / 4) * 3, 305 + 520 / 3 + (520 / 3) / 4, width((520 / 3) / 2), (520 / 3) / 2);
+	} else if (numPlayers === 6) {
+		drawPlayer(player, 1170 / 2, 305 + (520 / 4) * 3 + (530 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+		var index = game.playerOrder.indexOf(player.id);
+		
+		var player1 = game.players[game.playerOrder[(index + 1) % 6]];
+		drawPlayer(player1, 1170 / 4, 305 + (520 / 4) * 2 + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player2 = game.players[game.playerOrder[(index + 2) % 6]];
+		drawPlayer(player2, 1170 / 4, 305 + (520 / 4) + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player3 = game.players[game.playerOrder[(index + 3) % 6]];
+		drawPlayer(player3, (1170 / 8) * 3, 305 + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player4 = game.players[game.playerOrder[(index + 4) % 6]];
+		drawPlayer(player4, (1170 / 8) * 5, 305 + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player5 = game.players[game.playerOrder[(index + 5) % 6]];
+		drawPlayer(player5, (1170 / 4) * 3, 305 + 520 / 4 + (520 / 4) * (3 / 4), width((520 / 4) / 2), (520 / 4) / 2);
+	} else if (numPlayers === 7) {
+		drawPlayer(player, 1170 / 2, 305 + (520 / 4) * 3 + (530 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+		var index = game.playerOrder.indexOf(player.id);
+		
+		var player1 = game.players[game.playerOrder[(index + 1) % 7]];
+		drawPlayer(player1, 1170 / 4, 305 + (520 / 4) * 2 + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player2 = game.players[game.playerOrder[(index + 2) % 7]];
+		drawPlayer(player2, 1170 / 4, 305 + (520 / 4) + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player3 = game.players[game.playerOrder[(index + 3) % 7]];
+		drawPlayer(player3, (1170 / 8) * 3, 305 + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player4 = game.players[game.playerOrder[(index + 4) % 7]];
+		drawPlayer(player4, (1170 / 8) * 5, 305 + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player5 = game.players[game.playerOrder[(index + 5) % 7]];
+		drawPlayer(player5, (1170 / 4) * 3, 305 + (520 / 4) + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
+
+		var player6 = game.players[game.playerOrder[(index + 6) % 7]];
+		drawPlayer(player1, (1170 / 4) * 3, 305 + (520 / 4) * 2 + (520 / 4) / 4, width((520 / 4) / 2), (520 / 4) / 2);
 	}
 });
+
+var loadcount = 0;
+var loadtotal = 0;
+var preloaded = false;
+ 
+// Load images
+function loadImages(imagefiles) {
+    // Initialize variables
+    loadcount = 0;
+    loadtotal = imagefiles.length;
+    preloaded = false;
+ 
+    // Load the images
+    var loadedimages = [];
+    for (var i=0; i<imagefiles.length; i++) {
+        // Create the image object
+        var image = new Image();
+ 
+        // Add onload event handler
+        image.onload = function () {
+            loadcount++;
+            if (loadcount == loadtotal) {
+                // Done loading
+                preloaded = true;
+            }
+        };
+ 
+        // Set the source url of the image
+        image.src = imagefiles[i];
+ 
+        // Save to the image array
+        loadedimages[i] = image;
+    }
+ 
+    // Return an array of images
+    return loadedimages;
+}
+
+var getURLS = function(cards) {
+	var urls = [];
+	for (var i = 0; i < cards.length; i++) {
+		urls.push('/client/images/cards/original/' + cards[i].name + '.png')
+	}
+	return urls;
+}
 
 var drawPlayer = function(player, x, y, width, height) {
 	var board = document.getElementById('board').getContext('2d');
@@ -171,11 +288,15 @@ var drawPlayer = function(player, x, y, width, height) {
 	} else {
 		boardRoleImage.src = '/client/images/roles/back.png';
 	}
-	board.drawImage(boardRoleImage, x - width, y, width, height);	
+	boardRoleImage.onload = function() {
+		board.drawImage(boardRoleImage, x - width, y, width, height);	
+	}
 
 	var boardCharacterImage = new Image();
 	boardCharacterImage.src = '/client/images/characters/original/' + player.character + '.png';
-	board.drawImage(boardCharacterImage, x, y, width, height);
+	boardCharacterImage.onload = function() {
+		board.drawImage(boardCharacterImage, x, y, width, height);
+	}
 }
 
 var floorMod = function(num, div) {
@@ -213,6 +334,8 @@ socket.on('clickCardResponse', function(data) {
 	var suitC = document.getElementById('suit');
 	var suit = suitC.getContext('2d');
 	drawCard(data, card, suitC, suit);
+	console.log('drawnn');
+	console.log(data);
 });
 
 socket.on('clickRoleResponse', function(data) {
@@ -222,7 +345,9 @@ socket.on('clickRoleResponse', function(data) {
 	var image = new Image();
 	suit.clearRect(0, 0, suitC.width, suitC.height);
 	image.src = data;
-	card.drawImage(image, 0, 0);
+	image.onload = function() {
+		card.drawImage(image, 0, 0);
+	}
 });
 
 var height = function(width) {
@@ -262,8 +387,11 @@ var special = function(number) {
 var drawCard = function(card, cardCanvas, suitC, suitCanvas) {
 	var image = new Image();
 	image.src = '/client/images/cards/original/' + card.name + '.png';
-	cardCanvas.drawImage(image, 0, 0);
-
+	image.onload = function() {
+		cardCanvas.drawImage(image, 0, 0);
+	}
+	console.log(image.src);
+	console.log('actuallylla drawnnn');
 	suitCanvas.fillStyle = "white";
 	suitCanvas.fillRect(0, 0, suitC.width, suitC.height);
 	if (card.suit === 'D' || card.suit == 'H') {
@@ -276,5 +404,7 @@ var drawCard = function(card, cardCanvas, suitC, suitCanvas) {
 
 	var suitImage = new Image();
 	suitImage.src = '/client/images/suits/' + fullSuit(card.suit) + '.png';
-	suitCanvas.drawImage(suitImage, 32, 7);
+	suitImage.onload = function() {
+		suitCanvas.drawImage(suitImage, 32, 7);
+	}
 }
